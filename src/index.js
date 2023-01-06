@@ -28,19 +28,21 @@ function checksExistsUserAccount(request, response, next) {
 app.post('/users', (request, response) => {
   const { name, username } = request.body;
 
-  users.push({
-    id: uuidv4,
+  const user = {
+    id: uuidv4(),
     name,
     username,
     todo: [],
-  });
+  };
+
+  users.push(user);
 
   return response.status(201).json(users);
 });
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
 
-  const { user } = request.user;
+  const { user } = request;
 
   return response.json(user.todo);
 });
@@ -49,6 +51,7 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
   const { title, deadline } = request.body;
   const { user } = request;
 
+  //console.log(`Checking`);
   const todo = {
     id: uuidv4(),
     title,
@@ -56,10 +59,10 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
     deadline: new Date(deadline),
     create_at: new Date()
   }
-
+  //console.log(`Checking`);
   user.todo.push(todo);
-
-  return response.status(201);
+  //console.log(todo);
+  return response.status(201).send();
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
@@ -74,9 +77,9 @@ app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
   }
 
   todos.title = title;
-  todos.deadline = deadline;
+  todos.deadline = new Date(deadline);
 
-  return response.status(200);
+  return response.status(200).send();
 
 });
 
@@ -92,7 +95,7 @@ app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
 
   todo.done = true;
 
-  return response.status(200);
+  return response.status(200).send();
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
@@ -106,6 +109,8 @@ app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
   }
 
   user.todo.splice(todo, 1);
+
+  return response.status(201).send();
 });
 
 module.exports = app;
